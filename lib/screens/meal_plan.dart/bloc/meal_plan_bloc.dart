@@ -21,8 +21,10 @@ class MealPlanBloc extends Bloc<MealPlanEvent, MealPlanState> {
     Emitter<MealPlanState> emit,
   ) async {
     if (event.val.isEmpty) {
-      List<RecipeModel> recipes = await HiveDb.loadAllRecipes();
-      emit(MealPlanSearchResultsState(recipes: recipes));
+      List<RecipeModel>? recipes = await HiveDb.loadAllRecipes();
+      if (recipes != null) {
+        emit(MealPlanSearchResultsState(recipes: recipes));
+      }
     } else {
       List<RecipeModel> recipes = await HiveDb.getRecipes(event.val);
       if (recipes.isEmpty) {
@@ -48,11 +50,14 @@ class MealPlanBloc extends Bloc<MealPlanEvent, MealPlanState> {
     GetAllMealToPlanEvent event,
     Emitter<MealPlanState> emit,
   ) async {
-    _cachedMealPlans = await HiveDb.getAllMealPlans();
-    if (_cachedMealPlans.isNotEmpty) {
-      emit(MealPlanLoadSuccess(meals: _cachedMealPlans));
-    } else {
-      MealPlanFailureState(err: 'no meals');
+    List<MealPlanModel>? demoList = await HiveDb.getAllMealPlans();
+    if (demoList != null) {
+      _cachedMealPlans = demoList;
+      if (_cachedMealPlans.isNotEmpty) {
+        emit(MealPlanLoadSuccess(meals: _cachedMealPlans));
+      } else {
+        MealPlanFailureState(err: 'no meals');
+      }
     }
   }
 }

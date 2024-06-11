@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:meal_planning/blocs/bloc/internet_connection_bloc.dart';
+import 'package:meal_planning/blocs/observer.dart';
 import 'package:meal_planning/firebase_options.dart';
 import 'package:meal_planning/hive_db/db_functions.dart';
 import 'package:meal_planning/models/meal_plan_model.dart';
@@ -33,6 +34,7 @@ void main() async {
     ..registerAdapter(ShopingListItemAdapter())
     ..registerAdapter(MealPlanModelAdapter());
   // await Hive.deleteBoxFromDisk('ptD1YPjvgOX7Vv5oBRHdVG4P2R83');
+  Bloc.observer = MyBlocObserver();
 
   runApp(const MyApp());
 }

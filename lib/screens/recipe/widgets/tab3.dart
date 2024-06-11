@@ -5,6 +5,7 @@ import 'package:meal_planning/styles.dart';
 
 Widget buildTab3(BuildContext context, RecipeModel recipe) {
   return ListView.builder(
+      padding: EdgeInsets.all(0),
       itemCount: recipe.steps.length,
       itemBuilder: (BuildContext context, int ind) {
         String step = recipe.steps[ind];

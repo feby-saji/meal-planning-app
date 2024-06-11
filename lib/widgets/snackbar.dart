@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
-void KShowSnackBar(BuildContext context, String message, [int durationInSec = 2]) {
+void KShowSnackBar(BuildContext context, String message,
+    [int durationInSec = 5]) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      content: Text(message),
-      duration: Duration(
-          seconds: durationInSec)
-    ),
+        content: Text(message), duration: Duration(seconds: durationInSec)),
   );
 }

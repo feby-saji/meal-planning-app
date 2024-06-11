@@ -17,7 +17,7 @@ class MealPlanScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final SizeConfig sizeConfig = SizeConfig();
     sizeConfig.init(context);
-    context.read<MealPlanBloc>().add(GetAllMealToPlanEvent());
+    // context.read<MealPlanBloc>().add(GetAllMealToPlanEvent());
 
     return Column(
       children: [

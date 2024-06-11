@@ -74,7 +74,7 @@ class HiveDb {
     return user.recipes;
   }
 
-  static Future<List<RecipeModel>> loadAllRecipes() async {
+  static Future<List<RecipeModel>>? loadAllRecipes() async {
     userBox = await Hive.openBox(userUid);
     UserModel user = userBox!.get(userUid)!;
     return user.recipes;
@@ -176,9 +176,9 @@ class HiveDb {
     await userBox!.put(userUid, user);
   }
 
-  static Future<List<MealPlanModel>> getAllMealPlans() async {
+  static List<MealPlanModel>? getAllMealPlans() {
     UserModel? user = userBox!.get(userUid);
-    return user!.plannedMeals;
+    return user?.plannedMeals;
   }
 }
 

@@ -13,9 +13,14 @@ import 'package:meal_planning/widgets/snackbar.dart';
 bool navigatorPop = false;
 List<RecipeModel> allRecipes = [];
 
-class RecipeScreen extends StatelessWidget {
+class RecipeScreen extends StatefulWidget {
   const RecipeScreen({Key? key}) : super(key: key);
 
+  @override
+  State<RecipeScreen> createState() => _RecipeScreenState();
+}
+
+class _RecipeScreenState extends State<RecipeScreen> {
   @override
   Widget build(BuildContext context) {
     final SizeConfig sizeConfig = SizeConfig();

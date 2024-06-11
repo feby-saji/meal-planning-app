@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
@@ -18,7 +19,6 @@ class RecipeRepository {
 
       try {
         http.Response response = await http.get(Uri.parse(url));
-
         if (response.statusCode == 200) {
           var document = parser.parse(response.body);
           // Extract recipe data
@@ -33,7 +33,7 @@ class RecipeRepository {
               // Create RecipeModel
               recipe = RecipeModel.fromMap(map);
             } else {
-              print('fetch failed try recipes from another websites');
+              print('///// fetch failed try recipes from another websites');
               return 'try recipes from another websites';
             }
           } else {
@@ -46,13 +46,11 @@ class RecipeRepository {
         } else if (response.statusCode == 500) {
           return 'Server error: ${response.statusCode}';
         } else {
-          return 'Unexpected error occured : ${response.statusCode}';
+          return ' Unexpected error occured : ${response.statusCode}';
         }
       } catch (e) {
         // not working as expected
-
-        print('printing the try catch error ${e.toString()}');
-        return e.toString();
+        return _handleError(e);
       }
       return recipe;
     } else {
@@ -60,5 +58,20 @@ class RecipeRepository {
 
       return 'No active internet connection';
     }
+  }
+}
+
+String _handleError(dynamic error) {
+  if (error is TypeError) {
+    return 'Try recipes from different website';
+  } else if (error is http.ClientException) {
+    return 'Client error: ${error.message}';
+  } else if (error is TimeoutException) {
+    return 'Request timeout: The server took too long to respond.';
+  } else if (error is SocketException) {
+    return 'Network error: Please check your internet connection.';
+  } else {
+    print('An unexpected error occurred: ${error.toString()}');
+    return 'Try a different recipe';
   }
 }

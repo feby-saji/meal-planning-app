@@ -92,6 +92,7 @@ class DetailedRecipeScreen extends StatelessWidget {
 
 Widget buildTab2(BuildContext context, RecipeModel recipe) {
   return ListView.builder(
+      padding: EdgeInsets.all(0),
       itemCount: recipe.ingredients?.length ?? 0,
       itemBuilder: (context, ind) {
         String ing = recipe.ingredients?[ind] ?? '_';

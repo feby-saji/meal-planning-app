@@ -38,9 +38,11 @@ class RecipeBloc extends Bloc<RecipeEvent, RecipeState> {
     if (seachForFav) {
       add(SortRecipesEvent(fav: seachForFav));
     } else {
+      // TODO!
       _cachedRecipes = await HiveDb.loadAllRecipes();
+
       if (_cachedRecipes != null && _cachedRecipes!.isNotEmpty) {
-        print(_cachedRecipes);
+        print('printing recipes $_cachedRecipes');
         return emit(RecipeLoadSuccessState(recipes: _cachedRecipes!));
       } else {
         return emit(RecipeLoadFailedState(err: 'No recipes found'));
