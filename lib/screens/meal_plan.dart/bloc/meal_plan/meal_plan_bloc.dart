@@ -11,28 +11,9 @@ class MealPlanBloc extends Bloc<MealPlanEvent, MealPlanState> {
   List<MealPlanModel> _cachedMealPlans = [];
 
   MealPlanBloc() : super(MealPlanInitial()) {
-    on<MealPlanSerchEvent>(_mealPlanSearchEvent);
     on<AddMealToPlanEvent>(_addMealToPlanEvent);
     on<GetAllMealToPlanEvent>(_getAllMealToPlanEvent);
-  }
-
-  _mealPlanSearchEvent(
-    MealPlanSerchEvent event,
-    Emitter<MealPlanState> emit,
-  ) async {
-    if (event.val.isEmpty) {
-      List<RecipeModel>? recipes = await HiveDb.loadAllRecipes();
-      if (recipes != null) {
-        emit(MealPlanSearchResultsState(recipes: recipes));
-      }
-    } else {
-      List<RecipeModel> recipes = await HiveDb.getRecipes(event.val);
-      if (recipes.isEmpty) {
-        emit(MealPlanFailureState(err: 'no recipe found'));
-      } else {
-        emit(MealPlanSearchResultsState(recipes: recipes));
-      }
-    }
+    on<DeleteMealPlanEvent>(_deleteMealPlanEvent);
   }
 
   _addMealToPlanEvent(
@@ -40,10 +21,8 @@ class MealPlanBloc extends Bloc<MealPlanEvent, MealPlanState> {
     Emitter<MealPlanState> emit,
   ) async {
     await HiveDb.addMealToPlan(event.meal);
-    _cachedMealPlans.add(event.meal);
+    // _cachedMealPlans.add(event.meal);
     emit(MealPlanLoadSuccess(meals: _cachedMealPlans));
-
-    print('prinitng new meal plan added ');
   }
 
   _getAllMealToPlanEvent(
@@ -51,6 +30,7 @@ class MealPlanBloc extends Bloc<MealPlanEvent, MealPlanState> {
     Emitter<MealPlanState> emit,
   ) async {
     List<MealPlanModel>? demoList = await HiveDb.getAllMealPlans();
+
     if (demoList != null) {
       _cachedMealPlans = demoList;
       if (_cachedMealPlans.isNotEmpty) {
@@ -58,6 +38,18 @@ class MealPlanBloc extends Bloc<MealPlanEvent, MealPlanState> {
       } else {
         MealPlanFailureState(err: 'no meals');
       }
+    }
+  }
+
+  _deleteMealPlanEvent(
+      DeleteMealPlanEvent event, Emitter<MealPlanState> emit) async {
+    await HiveDb.deleteMealplans(event.mealPlan);
+    _cachedMealPlans.removeWhere((recipe) => recipe == event.mealPlan);
+
+    if (_cachedMealPlans.isNotEmpty) {
+      emit(MealPlanLoadSuccess(meals: _cachedMealPlans));
+    } else {
+      MealPlanFailureState(err: 'no meals');
     }
   }
 }

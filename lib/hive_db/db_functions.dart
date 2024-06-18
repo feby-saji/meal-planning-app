@@ -15,6 +15,12 @@ String currentUserUId = 'CURRENT_USER_UID';
 Box<UserModel>? userBox;
 late String userUid;
 
+// 
+enum UserType{
+  free,
+  premium,
+}
+
 class HiveDb {
   static createUser(User user) async {
     if (!Hive.isBoxOpen(user.uid)) {
@@ -43,6 +49,7 @@ class HiveDb {
       userUid = prefs.getString(currentUserUId)!;
       print('user $userUid logged in');
       userBox = await Hive.openBox<UserModel>(userUid);
+      await HiveDb.deleteOutdatedMeals();
 
       navigator.pushReplacement(
         MaterialPageRoute(builder: (context) => MainScreen()),
@@ -170,15 +177,23 @@ class HiveDb {
     await userBox!.put(userUid, user);
   }
 
-  static deleteMealplans() async {
+  static deleteMealplans(MealPlanModel mealPlanToDel) async {
     UserModel? user = userBox!.get(userUid);
-    user!.plannedMeals = [];
+    user!.plannedMeals.removeWhere((mealPlan) => mealPlan == mealPlanToDel);
     await userBox!.put(userUid, user);
   }
 
   static List<MealPlanModel>? getAllMealPlans() {
     UserModel? user = userBox!.get(userUid);
     return user?.plannedMeals;
+  }
+
+// delete the outdated meals
+  static deleteOutdatedMeals() async {
+    UserModel? user = userBox!.get(userUid);
+    user!.plannedMeals.removeWhere((mealPlan) => mealPlan.mealDate
+        .isBefore(DateTime.now().subtract(const Duration(days: 1))));
+    await userBox!.put(userUid, user);
   }
 }
 

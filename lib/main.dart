@@ -15,12 +15,14 @@ import 'package:meal_planning/repository/recipe_repo.dart';
 import 'package:meal_planning/screens/auth/auth.dart';
 import 'package:meal_planning/screens/auth/bloc/auth_bloc.dart';
 import 'package:meal_planning/screens/main_screen/main_screen.dart';
-import 'package:meal_planning/screens/meal_plan.dart/bloc/meal_plan_bloc.dart';
+import 'package:meal_planning/screens/meal_plan.dart/bloc/meal_plan/meal_plan_bloc.dart';
+import 'package:meal_planning/screens/meal_plan.dart/bloc/meal_search/meal_search_bloc.dart';
 import 'package:meal_planning/screens/meal_plan.dart/meal_plan.dart';
 import 'package:meal_planning/screens/recipe/bloc/recipe_bloc.dart';
 import 'package:meal_planning/screens/recipe/recipe.dart';
 import 'package:meal_planning/screens/shopping_list/bloc/shopping_list_bloc.dart';
 import 'package:meal_planning/screens/splash/splash.dart';
+import 'package:meal_planning/styles.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,6 +60,9 @@ class MyApp extends StatelessWidget {
             ),
           ),
           BlocProvider(
+            create: (context) => MealPlanSearchBloc(),
+          ),
+          BlocProvider(
             create: (context) => AuthBloc(
               authRepository: RepositoryProvider.of<AuthRepository>(context),
             ),
@@ -74,7 +79,12 @@ class MyApp extends StatelessWidget {
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(),
+          theme: ThemeData(
+              dialogTheme: DialogTheme(
+            backgroundColor: kClrSecondary,
+            titleTextStyle: kMedText,
+            contentTextStyle: kSmallText,
+          )),
           home: const SplashScreen(),
         ),
       ),

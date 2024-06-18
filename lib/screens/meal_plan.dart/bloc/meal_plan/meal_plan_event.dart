@@ -1,21 +1,19 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'meal_plan_bloc.dart';
 
 @immutable
 sealed class MealPlanEvent {}
 
-class MealPlanSerchEvent extends MealPlanEvent {
-  String val;
-  MealPlanSerchEvent({
-    required this.val,
-  });
-}
-
 class AddMealToPlanEvent extends MealPlanEvent {
-  MealPlanModel meal;
+  final MealPlanModel meal;
   AddMealToPlanEvent({
     required this.meal,
   });
+}
+
+class DeleteMealPlanEvent extends MealPlanEvent {
+  final MealPlanModel mealPlan;
+  DeleteMealPlanEvent({required this.mealPlan});
+  
 }
 
 class GetAllMealToPlanEvent extends MealPlanEvent {

@@ -2,11 +2,11 @@ import 'package:flutter/widgets.dart';
 import 'package:meal_planning/styles.dart';
 
 class KDetailTileWidget extends StatelessWidget {
-  String img;
-  String title;
-  String value;
+  final String img;
+  final String title;
+  final String value;
 
-  KDetailTileWidget({
+  const KDetailTileWidget({
     Key? key,
     required this.img,
     required this.title,

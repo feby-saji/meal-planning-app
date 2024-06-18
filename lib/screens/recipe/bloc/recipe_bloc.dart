@@ -7,6 +7,8 @@ import 'package:meal_planning/repository/recipe_repo.dart';
 part 'recipe_event.dart';
 part 'recipe_state.dart';
 
+bool isFavPage = false;
+
 class RecipeBloc extends Bloc<RecipeEvent, RecipeState> {
   RecipeRepository recipeRepository;
   List<RecipeModel>? _cachedRecipes;
@@ -29,7 +31,12 @@ class RecipeBloc extends Bloc<RecipeEvent, RecipeState> {
       emit(RecipeLoadSuccessState(recipes: _cachedRecipes!));
     } else {
       _cachedRecipes = await HiveDb.loadAllRecipes();
-      emit(RecipeLoadSuccessState(recipes: _cachedRecipes!));
+
+      if (_cachedRecipes != null && _cachedRecipes!.isNotEmpty) {
+        return emit(RecipeLoadSuccessState(recipes: _cachedRecipes!));
+      } else {
+        return emit(RecipeLoadFailedState(err: 'No recipes found'));
+      }
     }
   }
 
@@ -42,7 +49,6 @@ class RecipeBloc extends Bloc<RecipeEvent, RecipeState> {
       _cachedRecipes = await HiveDb.loadAllRecipes();
 
       if (_cachedRecipes != null && _cachedRecipes!.isNotEmpty) {
-        print('printing recipes $_cachedRecipes');
         return emit(RecipeLoadSuccessState(recipes: _cachedRecipes!));
       } else {
         return emit(RecipeLoadFailedState(err: 'No recipes found'));
@@ -74,19 +80,37 @@ class RecipeBloc extends Bloc<RecipeEvent, RecipeState> {
   }
 
   _updateFav(UpdateFavouriteEvent event, Emitter<RecipeState> emit) async {
+    List<RecipeModel> recipes;
     await HiveDb.updateFav(event.recipe, event.isFav);
+
     RecipeModel recipeToUpdate =
         _cachedRecipes!.firstWhere((element) => element == event.recipe);
     recipeToUpdate.isFav = event.isFav;
-    emit(RecipeLoadSuccessState(recipes: _cachedRecipes!));
+
+    if (isFavPage) {
+      recipes = _cachedRecipes!
+          .where((recipe) => recipe.isFav != event.isFav)
+          .toList();
+
+      emit(RecipeLoadSuccessState(recipes: recipes));
+    } else {
+      recipes = _cachedRecipes!.toList();
+    }
+
+    if (recipes.isNotEmpty) {
+      emit(RecipeLoadSuccessState(recipes: recipes));
+    } else {
+      emit(RecipeLoadFailedState(err: 'no favourite recipes found'));
+    }
   }
 
   _sortRecipes(SortRecipesEvent event, Emitter<RecipeState> emit) async {
-    // emit(RecipeLoadingState());
     if (_cachedRecipes != null && event.fav == true) {
       seachForFav = event.fav;
+
       List<RecipeModel> recipes =
           _cachedRecipes!.where((recipe) => recipe.isFav == true).toList();
+
       if (recipes.isEmpty) {
         emit(RecipeLoadFailedState(err: 'no favourite recipes found'));
       } else {
@@ -104,6 +128,7 @@ class RecipeBloc extends Bloc<RecipeEvent, RecipeState> {
     } else {
       List<RecipeModel> recipes =
           await HiveDb.searchRecipes(event.val, seachForFav);
+
       if (recipes.isEmpty) {
         emit(RecipeLoadFailedState(err: 'no recipes found'));
       } else {

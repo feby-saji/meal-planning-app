@@ -1,23 +1,21 @@
-import 'dart:ffi';
-
 import 'package:bloc/bloc.dart';
 import 'package:meal_planning/hive_db/db_functions.dart';
 import 'package:meal_planning/models/shoppinglist_item.dart';
 import 'package:meta/meta.dart';
-
 part 'shopping_list_event.dart';
 part 'shopping_list_state.dart';
 
 class ShoppingListBloc extends Bloc<ShoppingListEvent, ShoppingListState> {
   Map<String, List<ShopingListItem>> _cachedcategorizedList = {};
 
-//
   ShoppingListBloc() : super(ShoppingListInitial()) {
     on<ShoppingListAddEvent>(_shoppingListAddEvent);
     on<LoadShoppingListEvent>(_loadShoppingListEvent);
     on<ShoppingListItemRemoveEvent>(_shoppingListItemRemove);
     on<ClearShoppingListItemsEvent>(_clearShoppingListItems);
   }
+
+  String emptyListTxt = 'Shopping list is empty.';
 
   _shoppingListAddEvent(
     ShoppingListAddEvent event,
@@ -79,8 +77,7 @@ class ShoppingListBloc extends Bloc<ShoppingListEvent, ShoppingListState> {
       emit(ShoppingListItemsLoadedState(
           categorizedItems: _cachedcategorizedList));
     } else {
-      emit(ShoppingListItemsFailedState(error: 'your list is empty.'));
-      print('shoppiong list is empt///////////////////');
+      emit(ShoppingListItemsFailedState(error: emptyListTxt));
     }
   }
 
@@ -107,7 +104,7 @@ class ShoppingListBloc extends Bloc<ShoppingListEvent, ShoppingListState> {
         ShoppingListItemsLoadedState(categorizedItems: _cachedcategorizedList),
       );
     } else {
-      return emit(ShoppingListItemsFailedState(error: 'your list is empty.'));
+      return emit(ShoppingListItemsFailedState(error: emptyListTxt));
     }
   }
 
@@ -125,7 +122,7 @@ class ShoppingListBloc extends Bloc<ShoppingListEvent, ShoppingListState> {
         ShoppingListItemsLoadedState(categorizedItems: _cachedcategorizedList),
       );
     } else {
-      emit(ShoppingListItemsFailedState(error: 'list is empty'));
+      emit(ShoppingListItemsFailedState(error: emptyListTxt));
     }
   }
 }

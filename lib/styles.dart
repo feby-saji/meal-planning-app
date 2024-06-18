@@ -14,11 +14,11 @@ Color kClrTextDark = const Color(0xff000000);
 TextStyle kSmallText = const TextStyle(
   fontFamily: 'Poppins',
   fontSize: 18,
-  // fontWeight: FontWeight.bold,
 );
 TextStyle kMedText = const TextStyle(
   fontFamily: 'Poppins',
   fontSize: 22,
+  // fontWeight: FontWeight.bold,
   fontWeight: FontWeight.w500,
 );
 TextStyle kLargeText = const TextStyle(
@@ -42,6 +42,3 @@ class SizeConfig {
     blockSizeVer = screenHeight / 100;
   }
 }
-
-
-

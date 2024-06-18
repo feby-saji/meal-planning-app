@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meal_planning/screens/account/account.dart';
+import 'package:meal_planning/screens/meal_plan.dart/functions/show_del_dialog.dart';
 import 'package:meal_planning/screens/recipe/bloc/recipe_bloc.dart';
 import 'package:meal_planning/screens/shopping_list/bloc/shopping_list_bloc.dart';
 import 'package:meal_planning/styles.dart';
@@ -51,7 +52,17 @@ class KAppBarWidget extends StatelessWidget {
                   Visibility(
                     visible: delIconVisible,
                     child: IconButton(
-                        onPressed: () => _showDialogToDelete(context),
+                        onPressed: () => showDeleteConfirmation(
+                              context: context,
+                              contetText:
+                                  'Are you sure you want to clear Shopping List? ',
+                              onPressed: () => [
+                                context
+                                    .read<ShoppingListBloc>()
+                                    .add(ClearShoppingListItemsEvent()),
+                                Navigator.pop(context)
+                              ],
+                            ),
                         icon: Icon(
                           Icons.delete,
                           color: kClrPrimary,
@@ -92,6 +103,7 @@ class KAppBarWidget extends StatelessWidget {
                             ],
                           ).then((String? value) {
                             if (value != null) {
+                              isFavPage = value == '1' ? false : true;
                               context.read<RecipeBloc>().add(SortRecipesEvent(
                                   fav: value == '1' ? false : true));
                             }
@@ -162,28 +174,4 @@ class _MyDropdownState extends State<MyDropdown> {
       ),
     );
   }
-}
-
-_showDialogToDelete(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('All shopping items will be deleted.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('back')),
-          TextButton(
-              onPressed: () => [
-                    context
-                        .read<ShoppingListBloc>()
-                        .add(ClearShoppingListItemsEvent()),
-                    Navigator.pop(context)
-                  ],
-              child: const Text('delete')),
-        ],
-      );
-    },
-  );
 }

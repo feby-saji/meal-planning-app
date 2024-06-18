@@ -1,42 +1,36 @@
 import 'dart:io';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meal_planning/screens/recipe/bloc/recipe_bloc.dart';
 import 'package:meal_planning/styles.dart';
 
-class KRecipeWidget extends StatelessWidget {
-  const KRecipeWidget({
+class KMealTileWidget extends StatelessWidget {
+  const KMealTileWidget({
     Key? key,
-    required this.sizeConfig,
     required this.imgPath,
     required this.title,
-    required this.onLongPress,
     required this.onTap,
-    required this.isFav,
-    required this.updateFav,
+    required this.onLogPress,
   }) : super(key: key);
 
-  final SizeConfig sizeConfig;
   final String? imgPath;
   final String title;
-  final void Function() onLongPress;
   final void Function() onTap;
-  final void Function() updateFav;
-  final bool isFav;
+  final void Function() onLogPress;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onLongPress: onLongPress,
+      // long press to delete
       onTap: onTap,
+      onLongPress: onLogPress,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-        padding: const EdgeInsets.symmetric(horizontal: 10),
+        margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
         width: double.infinity,
-        height: sizeConfig.blockSizeVer * 8,
+        // should i give a max height?
+        // height: height,
 
         decoration: BoxDecoration(
-            color: kClrSecondary,
+            border: Border.all(width: 1, color: kClrPrimary),
             borderRadius: const BorderRadius.all(
               Radius.circular(20),
             )),
@@ -47,7 +41,6 @@ class KRecipeWidget extends StatelessWidget {
             const SizedBox(width: 10),
             _buildMealTitle(),
             const Spacer(),
-            _buildFavIcon(),
           ],
         ),
       ),
@@ -62,24 +55,6 @@ class KRecipeWidget extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         style: kSmallText.copyWith(color: kClrPrimary),
       ),
-    );
-  }
-
-  GestureDetector _buildFavIcon() {
-    return GestureDetector(
-      onTap: updateFav,
-      child: SizedBox(
-          child: isFav
-              ? _buildImage('assets/icons/app_icons/fav.png')
-              : _buildImage('assets/icons/app_icons/no-fav.png')),
-    );
-  }
-
-  Image _buildImage(String img) {
-    return Image.asset(
-      img,
-      width: 20,
-      height: 20,
     );
   }
 

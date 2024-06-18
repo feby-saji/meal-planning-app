@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meal_planning/models/recipe_model.dart';
+import 'package:meal_planning/screens/meal_plan.dart/functions/show_del_dialog.dart';
 import 'package:meal_planning/screens/recipe/bloc/recipe_bloc.dart';
 import 'package:meal_planning/screens/recipe/detailed_recipe.dart';
 import 'package:meal_planning/screens/recipe/widgets/recipe.dart';
@@ -81,7 +82,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
     SizeConfig sizeConfig,
   ) {
     if (state is RecipeLoadingState) {
-      return _buildLoadingWidget(context);
+      return _buildLoadingCircleProgressInd(context);
     } else if (state is RecipeLoadSuccessState) {
       allRecipes.clear();
       allRecipes.addAll(state.recipes);
@@ -97,7 +98,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
     }
   }
 
-  Widget _buildLoadingWidget(BuildContext context) {
+  Widget _buildLoadingCircleProgressInd(BuildContext context) {
     Future.microtask(() {
       showDialog(
         context: context,
@@ -125,22 +126,29 @@ class _RecipeScreenState extends State<RecipeScreen> {
             RecipeModel recipe = recipes[ind];
             return KRecipeWidget(
               isFav: recipe.isFav,
-              updateFav: () {
-                context.read<RecipeBloc>().add(
-                      UpdateFavouriteEvent(
-                        isFav: !recipe.isFav,
-                        recipe: recipe,
-                      ),
-                    );
-              },
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => DetailedRecipeScreen(recipe: recipe),
-                ),
-              ),
               title: recipe.title,
               imgPath: recipe.img,
               sizeConfig: sizeConfig,
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (context) => DetailedRecipeScreen(recipe: recipe)),
+              ),
+              updateFav: () {
+                context.read<RecipeBloc>().add(UpdateFavouriteEvent(
+                      isFav: !recipe.isFav,
+                      recipe: recipe,
+                    ));
+              },
+              onLongPress: () => showDeleteConfirmation(
+                  context: context,
+                  contetText:
+                      'Are you sure you want to delete "${recipe.title}"?',
+                  onPressed: () => [
+                        context
+                            .read<RecipeBloc>()
+                            .add(DeleteRecipeEvent(recipe: recipe)),
+                        Navigator.pop(context),
+                      ]),
             );
           },
         ),

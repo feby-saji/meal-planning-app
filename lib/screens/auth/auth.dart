@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:meal_planning/blocs/bloc/internet_connection_bloc.dart';
 import 'package:meal_planning/screens/auth/bloc/auth_bloc.dart';
 import 'package:meal_planning/screens/auth/widgets/bck_img.dart';
 import 'package:meal_planning/screens/auth/widgets/build_content.dart';
