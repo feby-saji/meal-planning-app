@@ -121,7 +121,7 @@ class KAppBarWidget extends StatelessWidget {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => AccountScreen()));
+                              builder: (context) => const AccountScreen()));
                     },
                     child: imgPath != null
                         ? Image.asset(
@@ -129,7 +129,7 @@ class KAppBarWidget extends StatelessWidget {
                             width: 25,
                             height: 25,
                           )
-                        : SizedBox(),
+                        : const SizedBox(),
                   ),
                 ],
               )

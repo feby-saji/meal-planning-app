@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meal_planning/models/shoppinglist_item.dart';
+import 'package:meal_planning/models/hive_models/shoppinglist_item.dart';
 import 'package:meal_planning/repository/recipe_repo.dart';
 import 'package:meal_planning/screens/main_screen/widgets/show_dialog.dart';
 import 'package:meal_planning/screens/meal_plan.dart/meal_plan.dart';

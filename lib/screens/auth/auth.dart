@@ -27,6 +27,7 @@ class AuthScreen extends StatelessWidget {
           if (state is AuthLoading) {
             const Center(child: CircularProgressIndicator());
           } else if (state is AuthSuccess) {
+            print('emitted AuthSuccessBlocState');
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (context) => MainScreen()),
             );

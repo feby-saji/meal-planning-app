@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:meal_planning/hive_db/db_functions.dart';
-import 'package:meal_planning/models/shoppinglist_item.dart';
+import 'package:meal_planning/models/hive_models/shoppinglist_item.dart';
 import 'package:meta/meta.dart';
 part 'shopping_list_event.dart';
 part 'shopping_list_state.dart';

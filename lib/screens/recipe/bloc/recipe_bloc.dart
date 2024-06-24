@@ -1,7 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:meal_planning/functions/checkUserType.dart';
 import 'package:meal_planning/hive_db/db_functions.dart';
-import 'package:meal_planning/models/recipe_model.dart';
+import 'package:meal_planning/models/hive_models/recipe_model.dart';
 import 'package:meal_planning/repository/get_img.dart';
 import 'package:meal_planning/repository/recipe_repo.dart';
 part 'recipe_event.dart';
@@ -22,6 +23,7 @@ class RecipeBloc extends Bloc<RecipeEvent, RecipeState> {
     on<SortRecipesEvent>(_sortRecipes);
     on<SearchRecipesEvent>(_searchRecipes);
   }
+
 
   _deleteRecipe(DeleteRecipeEvent event, Emitter<RecipeState> emit) async {
     emit(RecipeLoadingState());

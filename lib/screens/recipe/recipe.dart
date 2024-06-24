@@ -1,8 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meal_planning/models/recipe_model.dart';
+import 'package:meal_planning/blocs/user_type_bloc/bloc/user_type_bloc.dart';
+import 'package:meal_planning/hive_db/db_functions.dart';
+import 'package:meal_planning/main.dart';
+import 'package:meal_planning/models/hive_models/recipe_model.dart';
+import 'package:meal_planning/screens/auth/bloc/auth_bloc.dart';
 import 'package:meal_planning/screens/meal_plan.dart/functions/show_del_dialog.dart';
+import 'package:meal_planning/screens/premium/on_free_plan.dart';
 import 'package:meal_planning/screens/recipe/bloc/recipe_bloc.dart';
 import 'package:meal_planning/screens/recipe/detailed_recipe.dart';
 import 'package:meal_planning/screens/recipe/widgets/recipe.dart';
@@ -26,7 +31,9 @@ class _RecipeScreenState extends State<RecipeScreen> {
   Widget build(BuildContext context) {
     final SizeConfig sizeConfig = SizeConfig();
     sizeConfig.init(context);
-    context.read<RecipeBloc>().add(LoadRecipesEvent());
+
+    // check user type
+    context.read<UserTypeBloc>().add(CheckUserType());
 
     return Column(
       children: [
@@ -38,24 +45,41 @@ class _RecipeScreenState extends State<RecipeScreen> {
         ),
         Expanded(
           child: KMainContainerWidget(
-            sizeConfig: sizeConfig,
-            child: Column(
-              children: [
-                _buildSearchTextField(context),
-                const SizedBox(height: 10),
-                BlocConsumer<RecipeBloc, RecipeState>(
-                  listener: (context, state) {
-                    if (state is RecipeFetchingFailedState) {
-                      KShowSnackBar(context, state.err);
-                    }
-                  },
-                  builder: (context, state) {
-                    return _buildStateWidget(state, context, sizeConfig);
-                  },
-                ),
-              ],
-            ),
-          ),
+              sizeConfig: sizeConfig,
+              child: BlocBuilder<UserTypeBloc, UserTypeState>(
+                builder: (context, state) {
+                  if (state is UserTypeLoadingState) {
+                    // return _buildLoadingCircleProgressInd(context);
+                  } else if (state is PremiumUserState) {
+                    // 
+                    context.read<RecipeBloc>().add(LoadRecipesEvent());
+                    return _buildPremiumUser(sizeConfig, context);
+                    // 
+                  } else if (state is FreeUserState) {
+                    return const OnFreePLanScreen();
+                  }
+                  return const Text('check internet connnection');
+                },
+              )),
+        ),
+      ],
+    );
+  }
+
+  Column _buildPremiumUser(SizeConfig sizeConfig, BuildContext context) {
+    return Column(
+      children: [
+        _buildSearchTextField(context),
+        const SizedBox(height: 10),
+        BlocConsumer<RecipeBloc, RecipeState>(
+          listener: (context, state) {
+            if (state is RecipeFetchingFailedState) {
+              KShowSnackBar(context, state.err);
+            }
+          },
+          builder: (context, state) {
+            return _buildStateWidget(state, context, sizeConfig);
+          },
         ),
       ],
     );

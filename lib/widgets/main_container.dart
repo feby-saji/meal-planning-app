@@ -1,12 +1,12 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:meal_planning/hive_db/db_functions.dart';
+import 'package:meal_planning/main.dart';
 import 'package:meal_planning/styles.dart';
 
 class KMainContainerWidget extends StatelessWidget {
-  KMainContainerWidget({
-    super.key,
-    required this.child,
-    required this.sizeConfig,
-  });
+  KMainContainerWidget(
+      {super.key, required this.child, required this.sizeConfig, });
 
   Widget child;
   SizeConfig sizeConfig;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meal_planning/models/shoppinglist_item.dart';
+import 'package:meal_planning/models/hive_models/shoppinglist_item.dart';
 import 'package:meal_planning/screens/shopping_list/bloc/shopping_list_bloc.dart';
 import 'package:meal_planning/styles.dart';
 import 'package:meal_planning/widgets/main_appbar.dart';
@@ -47,7 +47,7 @@ class ShoppingListScreen extends StatelessWidget {
 
   Center _buildLoadFailedState(ShoppingListItemsFailedState state) {
     return Center(
-        child: Text(
+      child: Text(
       state.error,
       style: kMedText.copyWith(color: Colors.black),
     ));

@@ -1,7 +1,7 @@
 import 'package:hive_flutter/adapters.dart';
-import 'package:meal_planning/models/meal_plan_model.dart';
-import 'package:meal_planning/models/recipe_model.dart';
-import 'package:meal_planning/models/shoppinglist_item.dart';
+import 'package:meal_planning/models/hive_models/meal_plan_model.dart';
+import 'package:meal_planning/models/hive_models/recipe_model.dart';
+import 'package:meal_planning/models/hive_models/shoppinglist_item.dart';
 part 'user_model.g.dart';
 
 @HiveType(typeId: 1)
@@ -18,9 +18,12 @@ class UserModel {
   List<RecipeModel> favRecipes;
   @HiveField(5)
   List<ShopingListItem> shoppingListItems;
-   @HiveField(6)
+  @HiveField(6)
   List<MealPlanModel> plannedMeals;
-  
+  @HiveField(7)
+  bool isPremiumUser;
+  @HiveField(8)
+  String familyId;
 
   UserModel({
     required this.uid,
@@ -30,5 +33,9 @@ class UserModel {
     required this.favRecipes,
     required this.shoppingListItems,
     required this.plannedMeals,
+    required this.isPremiumUser,
+    required this.familyId,
   });
 }
+
+

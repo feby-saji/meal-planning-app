@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:meal_planning/models/recipe_model.dart';
+import 'package:meal_planning/models/hive_models/recipe_model.dart';
 import 'package:meal_planning/styles.dart';
 
 Widget buildTab3(BuildContext context, RecipeModel recipe) {

@@ -5,6 +5,7 @@ sealed class RecipeEvent {}
 
 class LoadRecipesEvent extends RecipeEvent {}
 
+
 class SearchRecipesEvent extends RecipeEvent {
   // bool fav;
   String val;

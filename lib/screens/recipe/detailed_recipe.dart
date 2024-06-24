@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:meal_planning/models/recipe_model.dart';
+import 'package:meal_planning/models/hive_models/recipe_model.dart';
 import 'package:meal_planning/screens/recipe/widgets/tab1.dart';
 import 'package:meal_planning/screens/recipe/widgets/tab3.dart';
 import 'package:meal_planning/styles.dart';

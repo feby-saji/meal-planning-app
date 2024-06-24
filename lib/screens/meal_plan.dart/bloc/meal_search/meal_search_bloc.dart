@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:meal_planning/hive_db/db_functions.dart';
-import 'package:meal_planning/models/recipe_model.dart';
+import 'package:meal_planning/models/hive_models/recipe_model.dart';
 import 'package:meta/meta.dart';
 part 'meal_search_event.dart';
 part 'meal_search_state.dart';

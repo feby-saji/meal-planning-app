@@ -2,33 +2,37 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:meal_planning/models/meal_plan_model.dart';
-import 'package:meal_planning/models/recipe_model.dart';
-import 'package:meal_planning/models/shoppinglist_item.dart';
-import 'package:meal_planning/models/user_model.dart';
+import 'package:meal_planning/functions/checkUserType.dart';
+import 'package:meal_planning/functions/network_connection.dart';
+import 'package:meal_planning/main.dart';
+import 'package:meal_planning/models/hive_models/meal_plan_model.dart';
+import 'package:meal_planning/models/hive_models/recipe_model.dart';
+import 'package:meal_planning/models/hive_models/shoppinglist_item.dart';
+import 'package:meal_planning/models/hive_models/user_model.dart';
 import 'package:meal_planning/screens/auth/auth.dart';
+import 'package:meal_planning/screens/connection%20failed/no_internet.dart';
 import 'package:meal_planning/screens/main_screen/main_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // sharedPrefs
 String currentUserUId = 'CURRENT_USER_UID';
-Box<UserModel>? userBox;
+late Box<UserModel> userBox;
 late String userUid;
 
-// 
-enum UserType{
+enum UserType {
   free,
   premium,
 }
 
 class HiveDb {
   static createUser(User user) async {
-    if (!Hive.isBoxOpen(user.uid)) {
-      userUid = user.uid;
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString(currentUserUId, user.uid);
-      userBox = await Hive.openBox<UserModel>(user.uid);
-      UserModel userModel = UserModel(
+    userType = UserType.free;
+    userUid = user.uid;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    userBox = await Hive.openBox<UserModel>(user.uid);
+    prefs.setString(currentUserUId, user.uid);
+
+    UserModel userModel = UserModel(
         uid: user.uid,
         isLoggedIn: true,
         name: user.displayName!,
@@ -36,30 +40,50 @@ class HiveDb {
         favRecipes: [],
         shoppingListItems: [],
         plannedMeals: [],
-      );
-      await userBox!.put(user.uid, userModel);
-    }
+        // not using isPremiumUser
+        isPremiumUser: false,
+        familyId: '');
+    await userBox.put(user.uid, userModel);
   }
 
-  getLoggedInUser(BuildContext context) async {
+  Future<void> getLoggedInUser(BuildContext context) async {
     final navigator = Navigator.of(context);
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getString(currentUserUId) != null &&
-        prefs.getString(currentUserUId)!.isNotEmpty) {
-      userUid = prefs.getString(currentUserUId)!;
-      print('user $userUid logged in');
-      userBox = await Hive.openBox<UserModel>(userUid);
-      await HiveDb.deleteOutdatedMeals();
 
-      navigator.pushReplacement(
-        MaterialPageRoute(builder: (context) => MainScreen()),
-      );
-      // HiveDb.deleteMealplans();
-    } else {
-      print('no user logged in');
-      navigator.pushReplacement(
-        MaterialPageRoute(builder: (context) => AuthScreen()),
-      );
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      if (prefs.getString(currentUserUId) != null &&
+          prefs.getString(currentUserUId)!.isNotEmpty) {
+        userUid = prefs.getString(currentUserUId)!;
+        print('user $userUid logged in');
+
+        userBox = await Hive.openBox<UserModel>(userUid);
+        await HiveDb.deleteOutdatedMeals();
+
+        UserType? userTypeIs = await getUserType();
+
+        if (userTypeIs == null) {
+          print('//getLoggedInUser no internet connection');
+          navigator.pushReplacement(
+            MaterialPageRoute(
+                builder: (context) => const ConnectionFaildScreen()),
+          );
+        } else {
+          userType = userTypeIs;
+          print('//getLoggedInUser userType is $userType');
+
+          navigator.pushReplacement(
+            MaterialPageRoute(builder: (context) => MainScreen()),
+          );
+        }
+      } else {
+        print('//getLoggedInUser userType is $userType');
+        navigator.pushReplacement(
+          MaterialPageRoute(builder: (context) => AuthScreen()),
+        );
+      }
+    } catch (error) {
+      print('//getLoggedInUser Error getting logged-in user: $error');
     }
   }
 
@@ -67,55 +91,62 @@ class HiveDb {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(currentUserUId, '');
     userBox = await Hive.openBox<UserModel>(uid);
-    UserModel user = userBox!.get(uid)!;
+    UserModel user = userBox.get(uid)!;
     user.isLoggedIn = false;
-    await userBox!.put(uid, user);
+    await userBox.put(uid, user);
   }
+// not nocessary to store user type in hive
+  // setUserIsPremium(bool isPremium) async {
+  //   userBox = await Hive.openBox<UserModel>(userUid);
+  //   UserModel user = userBox.get(userUid)!;
+  //   user.isPremiumUser = false;
+  //   await userBox.put(userUid, user);
+  // }
 
 // recipe functions
   static Future<List<RecipeModel>> addNewRecipe(recipe) async {
     userBox = await Hive.openBox<UserModel>(userUid);
-    UserModel user = userBox!.get(userUid)!;
+    UserModel user = userBox.get(userUid)!;
     user.recipes.add(recipe);
-    await userBox!.put(userUid, user);
+    await userBox.put(userUid, user);
     return user.recipes;
   }
 
   static Future<List<RecipeModel>>? loadAllRecipes() async {
     userBox = await Hive.openBox(userUid);
-    UserModel user = userBox!.get(userUid)!;
+    UserModel user = userBox.get(userUid)!;
     return user.recipes;
   }
 
   static Future<List<RecipeModel>> getRecipes(String val) async {
     userBox = await Hive.openBox(userUid);
-    UserModel user = userBox!.get(userUid)!;
+    UserModel user = userBox.get(userUid)!;
     return user.recipes
         .where((item) => item.title.toLowerCase().contains(val.toLowerCase()))
         .toList();
   }
 
   static deletRecipe(RecipeModel recipe) async {
-    UserModel? user = userBox!.get(userUid);
+    UserModel? user = userBox.get(userUid);
     if (user != null) {
       user.recipes.removeWhere((element) => element == recipe);
-      await userBox!.put(userUid, user);
+      await userBox.put(userUid, user);
     }
   }
 
   static updateFav(RecipeModel recipe, bool isFav) async {
-    UserModel? user = userBox!.get(userUid);
+    UserModel? user = userBox.get(userUid);
     if (user != null) {
       RecipeModel updateRecipe =
           user.recipes.firstWhere((element) => element == recipe);
       updateRecipe.isFav = isFav;
-      await userBox!.put(userUid, user);
+      await userBox.put(userUid, user);
     }
   }
 
   static Future<List<RecipeModel>> searchRecipes(String val, bool isFav) async {
     userBox = await Hive.openBox(userUid);
-    UserModel user = userBox!.get(userUid)!;
+    UserModel user = userBox.get(userUid)!;
     if (isFav) {
       return user.recipes
           .where((item) =>
@@ -131,7 +162,7 @@ class HiveDb {
 
   // shoppingList functions
   static List<ShopingListItem>? loadAllShoppingItem() {
-    UserModel? user = userBox!.get(userUid);
+    UserModel? user = userBox.get(userUid);
     if (user != null) {
       return user.shoppingListItems;
     }
@@ -139,7 +170,7 @@ class HiveDb {
   }
 
   static addNewShoppingItem(ShopingListItem item) async {
-    UserModel? user = userBox!.get(userUid);
+    UserModel? user = userBox.get(userUid);
     if (user != null) {
       int existingInd = user.shoppingListItems
           .indexWhere((element) => element.name == item.name);
@@ -153,47 +184,47 @@ class HiveDb {
         item.category = ingredientCategories[item.name] ?? 'others';
         user.shoppingListItems.add(item);
       }
-      await userBox!.put(userUid, user);
+      await userBox.put(userUid, user);
     }
   }
 
   static void removeShoppingListItem(ShopingListItem item) async {
-    UserModel? user = userBox!.get(userUid);
+    UserModel? user = userBox.get(userUid);
     int ind = user!.shoppingListItems.indexOf(item);
     user.shoppingListItems.removeAt(ind);
-    await userBox!.put(userUid, user);
+    await userBox.put(userUid, user);
   }
 
   static void clearShoppingListItems() async {
-    UserModel? user = userBox!.get(userUid);
+    UserModel? user = userBox.get(userUid);
     user!.shoppingListItems = [];
-    await userBox!.put(userUid, user);
+    await userBox.put(userUid, user);
   }
 
   // meal plan functions
   static addMealToPlan(MealPlanModel meal) async {
-    UserModel? user = userBox!.get(userUid);
+    UserModel? user = userBox.get(userUid);
     user!.plannedMeals.add(meal);
-    await userBox!.put(userUid, user);
+    await userBox.put(userUid, user);
   }
 
   static deleteMealplans(MealPlanModel mealPlanToDel) async {
-    UserModel? user = userBox!.get(userUid);
+    UserModel? user = userBox.get(userUid);
     user!.plannedMeals.removeWhere((mealPlan) => mealPlan == mealPlanToDel);
-    await userBox!.put(userUid, user);
+    await userBox.put(userUid, user);
   }
 
   static List<MealPlanModel>? getAllMealPlans() {
-    UserModel? user = userBox!.get(userUid);
+    UserModel? user = userBox.get(userUid);
     return user?.plannedMeals;
   }
 
 // delete the outdated meals
   static deleteOutdatedMeals() async {
-    UserModel? user = userBox!.get(userUid);
+    UserModel? user = userBox.get(userUid);
     user!.plannedMeals.removeWhere((mealPlan) => mealPlan.mealDate
         .isBefore(DateTime.now().subtract(const Duration(days: 1))));
-    await userBox!.put(userUid, user);
+    await userBox.put(userUid, user);
   }
 }
 

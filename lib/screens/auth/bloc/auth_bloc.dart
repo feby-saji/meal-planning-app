@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:meal_planning/hive_db/db_functions.dart';
-import 'package:meal_planning/models/user_model.dart';
+import 'package:meal_planning/models/hive_models/user_model.dart';
 import 'package:meal_planning/repository/auth_repo.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:meta/meta.dart';
@@ -23,7 +23,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (internetConnected) {
       UserCredential userCredential = await authRepository.signInWithGoogle();
       if (userCredential.user != null) {
-        HiveDb.createUser(userCredential.user!);
+        await HiveDb.createUser(userCredential.user!);
         emit(AuthSuccess());
         return;
       } else {

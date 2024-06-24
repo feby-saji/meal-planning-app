@@ -24,13 +24,15 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       favRecipes: (fields[4] as List).cast<RecipeModel>(),
       shoppingListItems: (fields[5] as List).cast<ShopingListItem>(),
       plannedMeals: (fields[6] as List).cast<MealPlanModel>(),
+      isPremiumUser: fields[7] as bool,
+      familyId: fields[8] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -44,7 +46,11 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(5)
       ..write(obj.shoppingListItems)
       ..writeByte(6)
-      ..write(obj.plannedMeals);
+      ..write(obj.plannedMeals)
+      ..writeByte(7)
+      ..write(obj.isPremiumUser)
+      ..writeByte(8)
+      ..write(obj.familyId);
   }
 
   @override

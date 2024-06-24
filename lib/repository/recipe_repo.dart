@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
-import 'package:meal_planning/models/recipe_model.dart';
+import 'package:meal_planning/models/hive_models/recipe_model.dart';
 
 class RecipeRepository {
   Future<dynamic> getRecipeContent(String url) async {

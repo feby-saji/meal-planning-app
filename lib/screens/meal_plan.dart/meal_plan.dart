@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meal_planning/models/meal_plan_model.dart';
-import 'package:meal_planning/models/recipe_model.dart';
+import 'package:meal_planning/functions/checkUserType.dart';
+import 'package:meal_planning/hive_db/db_functions.dart';
+import 'package:meal_planning/main.dart';
+import 'package:meal_planning/models/hive_models/meal_plan_model.dart';
+import 'package:meal_planning/models/hive_models/recipe_model.dart';
 import 'package:meal_planning/screens/meal_plan.dart/bloc/meal_plan/meal_plan_bloc.dart';
 import 'package:meal_planning/screens/meal_plan.dart/bloc/meal_search/meal_search_bloc.dart';
 import 'package:meal_planning/screens/meal_plan.dart/functions/dateFormat.dart';
@@ -12,6 +15,7 @@ import 'package:meal_planning/screens/recipe/detailed_recipe.dart';
 import 'package:meal_planning/styles.dart';
 import 'package:meal_planning/widgets/main_appbar.dart';
 import 'package:meal_planning/widgets/main_container.dart';
+import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 
 class MealPlanScreen extends StatelessWidget {
   const MealPlanScreen({Key? key}) : super(key: key);
@@ -47,10 +51,21 @@ class MealPlanScreen extends StatelessWidget {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () => _buildShowDialog(
-                        context,
-                        DateTime.now().add(Duration(days: ind)),
-                      ),
+                      onTap: () async {
+                        if (userType == UserType.free) {
+                          await RevenueCatUI.presentPaywallIfNeeded("premium");
+                          await getUserType().then((usertyp) {
+                            if (usertyp != null) {
+                              userType = usertyp;
+                            }
+                          });
+                          return;
+                        }
+                        _buildShowDialog(                  
+                          context,
+                          DateTime.now().add(Duration(days: ind)),
+                        );
+                      },
                       child: SingleChildScrollView(
                           child: _buildMealContainer(ind)),
                     ),

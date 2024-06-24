@@ -6,6 +6,8 @@ final class RecipeInitial extends RecipeState {}
 
 final class RecipeLoadingState extends RecipeState {}
 
+
+
 final class RecipeLoadSuccessState extends RecipeState {
   @override
   List<RecipeModel> recipes;
