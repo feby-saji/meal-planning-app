@@ -5,10 +5,12 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:meal_planning/functions/checkUserType.dart';
 import 'package:meal_planning/functions/network_connection.dart';
 import 'package:meal_planning/main.dart';
+import 'package:meal_planning/models/hive_models/family.dart';
 import 'package:meal_planning/models/hive_models/meal_plan_model.dart';
 import 'package:meal_planning/models/hive_models/recipe_model.dart';
 import 'package:meal_planning/models/hive_models/shoppinglist_item.dart';
 import 'package:meal_planning/models/hive_models/user_model.dart';
+import 'package:meal_planning/repository/firestore.dart';
 import 'package:meal_planning/screens/auth/auth.dart';
 import 'package:meal_planning/screens/connection%20failed/no_internet.dart';
 import 'package:meal_planning/screens/main_screen/main_screen.dart';
@@ -18,6 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 String currentUserUId = 'CURRENT_USER_UID';
 late Box<UserModel> userBox;
 late String userUid;
+FireStoreFunctions fireStore = FireStoreFunctions();
 
 enum UserType {
   free,
@@ -30,20 +33,23 @@ class HiveDb {
     userUid = user.uid;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     userBox = await Hive.openBox<UserModel>(user.uid);
+
     prefs.setString(currentUserUId, user.uid);
 
     UserModel userModel = UserModel(
-        uid: user.uid,
-        isLoggedIn: true,
-        name: user.displayName!,
-        recipes: [],
-        favRecipes: [],
-        shoppingListItems: [],
-        plannedMeals: [],
-        // not using isPremiumUser
-        isPremiumUser: false,
-        familyId: '');
+      uid: user.uid,
+      isLoggedIn: true,
+      name: user.displayName!,
+      recipes: [],
+      favRecipes: [],
+      shoppingListItems: [],
+      plannedMeals: [],
+      // not using isPremiumUser
+      isPremiumUser: false,
+    );
     await userBox.put(user.uid, userModel);
+
+    await fireStore.createUser(user);
   }
 
   Future<void> getLoggedInUser(BuildContext context) async {
@@ -51,8 +57,9 @@ class HiveDb {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-
-      if (prefs.getString(currentUserUId) != null &&
+      // Check if user exists
+      if (prefs.containsKey(currentUserUId) &&
+          prefs.getString(currentUserUId) != null &&
           prefs.getString(currentUserUId)!.isNotEmpty) {
         userUid = prefs.getString(currentUserUId)!;
         print('user $userUid logged in');
@@ -60,8 +67,8 @@ class HiveDb {
         userBox = await Hive.openBox<UserModel>(userUid);
         await HiveDb.deleteOutdatedMeals();
 
+        // Check if user is premium
         UserType? userTypeIs = await getUserType();
-
         if (userTypeIs == null) {
           print('//getLoggedInUser no internet connection');
           navigator.pushReplacement(
@@ -88,6 +95,7 @@ class HiveDb {
   }
 
   signOutUser(String uid, bool loggedIn) async {
+    await FirebaseAuth.instance.signOut();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(currentUserUId, '');
     userBox = await Hive.openBox<UserModel>(uid);
@@ -95,6 +103,7 @@ class HiveDb {
     user.isLoggedIn = false;
     await userBox.put(uid, user);
   }
+
 // not nocessary to store user type in hive
   // setUserIsPremium(bool isPremium) async {
   //   userBox = await Hive.openBox<UserModel>(userUid);
@@ -102,6 +111,33 @@ class HiveDb {
   //   user.isPremiumUser = false;
   //   await userBox.put(userUid, user);
   // }
+
+// family functions
+// get from firestore and put in hive
+  static Future<void> updateFamily(Family family) async {
+    try {
+      UserModel user = userBox.get(userUid)!;
+      user.family = family;
+      await userBox.put(userUid, user);
+      print('//updateFamily ${user.family!.members.length}');
+    } catch (e) {
+      print('Error updating family: $e');
+    }
+  }
+
+  static Future<Family?> getFamilyHive() async {
+    try {
+      UserModel user = userBox.get(userUid)!;
+      if (user.family != null) {
+        return user.family!;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error getting family: $e');
+      return Family(familyId: 'no family id found', creator: '', members: []);
+    }
+  }
 
 // recipe functions
   static Future<List<RecipeModel>> addNewRecipe(recipe) async {

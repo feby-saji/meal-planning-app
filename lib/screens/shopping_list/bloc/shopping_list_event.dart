@@ -7,6 +7,8 @@ sealed class ShoppingListEvent {}
 
 class LoadShoppingListEvent extends ShoppingListEvent {}
 
+class SyncShoppingListEvent extends ShoppingListEvent {}
+
 class ShoppingListAddEvent extends ShoppingListEvent {
   ShopingListItem item;
   ShoppingListAddEvent({required this.item});

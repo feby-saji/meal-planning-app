@@ -1,9 +1,7 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:meal_planning/consants/revenue_cat.dart';
 import 'package:meal_planning/consants/store_config.dart';
 import 'package:meal_planning/functions/network_connection.dart';
 import 'package:meal_planning/hive_db/db_functions.dart';
-import 'package:meal_planning/main.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 Future<UserType?> getUserType() async {

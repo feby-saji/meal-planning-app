@@ -25,7 +25,7 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       shoppingListItems: (fields[5] as List).cast<ShopingListItem>(),
       plannedMeals: (fields[6] as List).cast<MealPlanModel>(),
       isPremiumUser: fields[7] as bool,
-      familyId: fields[8] as String,
+      family: fields[8] as Family?,
     );
   }
 
@@ -50,7 +50,7 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(7)
       ..write(obj.isPremiumUser)
       ..writeByte(8)
-      ..write(obj.familyId);
+      ..write(obj.family);
   }
 
   @override

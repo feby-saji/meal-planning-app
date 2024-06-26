@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meal_planning/hive_db/db_functions.dart';
+import 'package:meal_planning/repository/firestore.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

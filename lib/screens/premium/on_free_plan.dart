@@ -23,6 +23,7 @@ class OnFreePLanScreen extends StatelessWidget {
     ));
     return Scaffold(
       backgroundColor: Colors.transparent,
+      appBar: AppBar(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,

@@ -7,6 +7,7 @@ import 'package:meal_planning/blocs/user_type_bloc/bloc/user_type_bloc.dart';
 import 'package:meal_planning/firebase_options.dart';
 import 'package:meal_planning/functions/checkUserType.dart';
 import 'package:meal_planning/hive_db/db_functions.dart';
+import 'package:meal_planning/models/hive_models/family.dart';
 import 'package:meal_planning/models/hive_models/meal_plan_model.dart';
 import 'package:meal_planning/models/hive_models/recipe_model.dart';
 import 'package:meal_planning/models/hive_models/shoppinglist_item.dart';
@@ -14,6 +15,7 @@ import 'package:meal_planning/models/hive_models/user_model.dart';
 import 'package:meal_planning/repository/auth_repo.dart';
 import 'package:meal_planning/repository/recipe_repo.dart';
 import 'package:meal_planning/screens/auth/bloc/auth_bloc.dart';
+import 'package:meal_planning/screens/family/bloc/family_bloc.dart';
 import 'package:meal_planning/screens/meal_plan.dart/bloc/meal_plan/meal_plan_bloc.dart';
 import 'package:meal_planning/screens/meal_plan.dart/bloc/meal_search/meal_search_bloc.dart';
 import 'package:meal_planning/screens/recipe/bloc/recipe_bloc.dart';
@@ -34,7 +36,8 @@ void main() async {
     ..registerAdapter(UserModelAdapter())
     ..registerAdapter(RecipeModelAdapter())
     ..registerAdapter(ShopingListItemAdapter())
-    ..registerAdapter(MealPlanModelAdapter());
+    ..registerAdapter(MealPlanModelAdapter())
+    ..registerAdapter(FamilyAdapter());
   await revenuwCatConfig();
 
   runApp(const MyApp());
@@ -78,6 +81,9 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => InternetConnectionBloc(),
+          ),
+          BlocProvider(
+            create: (context) => FamilyBloc(),
           ),
         ],
         child: MaterialApp(

@@ -41,7 +41,6 @@ class _RecipeScreenState extends State<RecipeScreen> {
           sizeConfig: sizeConfig,
           title: 'Recipe',
           imgPath: 'assets/icons/app_icons/settings.png',
-          sortIconVidibility: true,
         ),
         Expanded(
           child: KMainContainerWidget(

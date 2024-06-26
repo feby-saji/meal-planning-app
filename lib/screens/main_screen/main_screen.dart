@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meal_planning/models/hive_models/shoppinglist_item.dart';
+import 'package:meal_planning/repository/firestore.dart';
 import 'package:meal_planning/repository/recipe_repo.dart';
 import 'package:meal_planning/screens/main_screen/widgets/show_dialog.dart';
 import 'package:meal_planning/screens/meal_plan.dart/meal_plan.dart';
@@ -14,6 +15,7 @@ import 'package:meal_planning/widgets/bottom_nav_bar.dart';
 import 'package:meal_planning/widgets/snackbar.dart';
 
 ValueNotifier<int> navBarInd = ValueNotifier(1);
+
 
 class MainScreen extends StatelessWidget {
   // static String route = 'main_screen';

@@ -29,6 +29,13 @@
             {
               "client_id": "420464524498-emnp0okf1gth8djhkbojr2t5ksbiot2u.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "420464524498-9r24tm2ku28degttnvclkmqljk2ui0to.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.mealPlanning"
+              }
             }
           ]
         }

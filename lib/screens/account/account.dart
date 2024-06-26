@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meal_planning/blocs/user_type_bloc/bloc/user_type_bloc.dart';
 import 'package:meal_planning/consants/revenue_cat.dart';
 import 'package:meal_planning/functions/checkUserType.dart';
+import 'package:meal_planning/functions/paywall_func.dart';
 import 'package:meal_planning/hive_db/db_functions.dart';
 import 'package:meal_planning/main.dart';
 import 'package:meal_planning/screens/account/functions/url_launcher.dart';
@@ -75,15 +76,14 @@ class AccountScreen extends StatelessWidget {
                         await presentPayWall();
                         context.read<UserTypeBloc>().add(CheckUserType());
                       } else {
-                        Navigator.of(context).push(
+                        Navigator.push(
+                          context,
                           MaterialPageRoute(
-                            builder: (context) => const FamilyScreen(),
-                          ),
+                              builder: (context) => const FamilyScreen()),
                         );
                       }
                     },
                   ),
-
                   OptionTileWidget(
                     iconPath: 'assets/icons/app_icons/privacy.png',
                     title: 'Privacy Policy',
@@ -114,20 +114,7 @@ class AccountScreen extends StatelessWidget {
     );
   }
 
-  presentPayWall() async {
-    Offerings? offerings;
-    try {
-      offerings = await Purchases.getOfferings();
-    } on PlatformException catch (e) {
-      print('error $e');
-    }
-    await RevenueCatUI.presentPaywallIfNeeded("premium");
-    await getUserType().then((usertyp) {
-      if (usertyp != null) {
-        userType = usertyp;
-      }
-    });
-  }
+ 
 }
 
 class OptionTileWidget extends StatelessWidget {

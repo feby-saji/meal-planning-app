@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:meal_planning/hive_db/db_functions.dart';
 import 'package:meal_planning/models/hive_models/shoppinglist_item.dart';
+import 'package:meal_planning/repository/firestore.dart';
+import 'package:meal_planning/screens/family/bloc/family_bloc.dart';
 import 'package:meta/meta.dart';
 part 'shopping_list_event.dart';
 part 'shopping_list_state.dart';
@@ -13,6 +15,7 @@ class ShoppingListBloc extends Bloc<ShoppingListEvent, ShoppingListState> {
     on<LoadShoppingListEvent>(_loadShoppingListEvent);
     on<ShoppingListItemRemoveEvent>(_shoppingListItemRemove);
     on<ClearShoppingListItemsEvent>(_clearShoppingListItems);
+    on<SyncShoppingListEvent>(_syncShoppingListEvent);
   }
 
   String emptyListTxt = 'Shopping list is empty.';
@@ -123,6 +126,47 @@ class ShoppingListBloc extends Bloc<ShoppingListEvent, ShoppingListState> {
       );
     } else {
       emit(ShoppingListItemsFailedState(error: emptyListTxt));
+    }
+  }
+
+  _syncShoppingListEvent(
+    SyncShoppingListEvent event,
+    Emitter<ShoppingListState> emit,
+  ) async {
+    emit(ShoppingListLoadingState());
+    FireStoreFunctions firestore = FireStoreFunctions();
+
+    // write every items to firestore
+    List<ShopingListItem>? allItems = HiveDb.loadAllShoppingItem();
+
+    if (allItems != null && allItems.isNotEmpty) {
+      try {
+        Map<String, dynamic> shoppingItemsMap = {};
+
+        for (var item in allItems) {
+          shoppingItemsMap[item.name] = {
+            'category': item.category,
+            'quantity': item.quantity,
+          };
+        }
+
+        await firestore.writeShoppingListItems(shoppingItemsMap);
+        // clear shopping list before getting items from firestore else quantity will conflict
+        // HiveDb.clearShoppingListItems();
+
+        // put items to hive
+        List<ShopingListItem>? allItemsList =
+            await firestore.readShoppingListItems();
+        if (allItemsList != null && allItemsList.isNotEmpty) {
+          for (var item in allItemsList) {
+            await HiveDb.addNewShoppingItem(item);
+          }
+        }
+        // call LoadShoppingListEvent after putting shoppping items in hive
+        return add(LoadShoppingListEvent());
+      } catch (e) {
+        print(e);
+      }
     }
   }
 }

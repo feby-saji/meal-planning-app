@@ -21,7 +21,6 @@ class ShoppingListScreen extends StatelessWidget {
           sizeConfig: sizeConfig,
           title: 'Shopping list',
           imgPath: 'assets/icons/app_icons/settings.png',
-          delIconVisible: true,
         ),
         Expanded(
           child: KMainContainerWidget(
