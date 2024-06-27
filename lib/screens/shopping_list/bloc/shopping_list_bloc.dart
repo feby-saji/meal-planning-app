@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:meal_planning/hive_db/db_functions.dart';
 import 'package:meal_planning/models/hive_models/shoppinglist_item.dart';
 import 'package:meal_planning/repository/firestore.dart';
@@ -136,6 +137,19 @@ class ShoppingListBloc extends Bloc<ShoppingListEvent, ShoppingListState> {
     emit(ShoppingListLoadingState());
     FireStoreFunctions firestore = FireStoreFunctions();
 
+    // put items to hive
+    List<ShopingListItem>? allItemsList =
+        await firestore.readShoppingListItems();
+    if (allItemsList != null && allItemsList.isNotEmpty) {
+      //
+      // delete shopping items if any
+      //  await firestore.deleteShoppingListItems();
+
+      for (var item in allItemsList) {
+        await HiveDb.addNewShoppingItem(item);
+      }
+    }
+
     // write every items to firestore
     List<ShopingListItem>? allItems = HiveDb.loadAllShoppingItem();
 
@@ -150,23 +164,15 @@ class ShoppingListBloc extends Bloc<ShoppingListEvent, ShoppingListState> {
           };
         }
 
-        await firestore.writeShoppingListItems(shoppingItemsMap);
         // clear shopping list before getting items from firestore else quantity will conflict
         // HiveDb.clearShoppingListItems();
 
-        // put items to hive
-        List<ShopingListItem>? allItemsList =
-            await firestore.readShoppingListItems();
-        if (allItemsList != null && allItemsList.isNotEmpty) {
-          for (var item in allItemsList) {
-            await HiveDb.addNewShoppingItem(item);
-          }
-        }
-        // call LoadShoppingListEvent after putting shoppping items in hive
         return add(LoadShoppingListEvent());
       } catch (e) {
         print(e);
       }
+    } else {
+      return add(LoadShoppingListEvent());
     }
   }
 }

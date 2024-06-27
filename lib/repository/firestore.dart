@@ -51,11 +51,7 @@ class FireStoreFunctions {
         'shopping list': {},
       });
       CollectionReference shoppingListRef = docRef.collection('shopping_list');
-      await shoppingListRef.doc('shopping list').set({
-        'items': {
-          'Milk': {'quantity': 2, 'category': 'Dairy'},
-        }
-      });
+      await shoppingListRef.doc('shopping list').set({'items': {}});
 
       await docRef.update({'familyId': docRef.id});
       // update in user doc
@@ -121,19 +117,45 @@ class FireStoreFunctions {
   }
 
   // shopping list functions
-  writeShoppingListItems(Map<String, dynamic> mapOfItems) async {
-    // get family id
+ Future<void> writeShoppingListItems(Map<String, dynamic> mapOfItems) async {
+    print('//writeShoppingListItems writing items to firestore');
+
+    // Get family id
     DocumentSnapshot docSnapshot = await usersCollection.doc(userUid).get();
     String familyId = docSnapshot.get('familyId');
 
-    await familyCollection
+    // Reference to the shopping list document
+    DocumentReference shoppingListRef = familyCollection
         .doc(familyId)
         .collection('shopping_list')
-        .doc('shopping list')
-        .update({'items': mapOfItems});
-  }
+        .doc('shopping list');
+
+    // Check if the document exists to decide whether to set or update
+    DocumentSnapshot docSnap = await shoppingListRef.get();
+    if (docSnap.exists && docSnap.data() != null) {
+        // Cast the data to a Map<String, dynamic>
+        Map<String, dynamic> existingData = docSnap.data() as Map<String, dynamic>;
+        Map<String, dynamic> existingItems = existingData['items'] ?? {};
+
+        // Merge the new items into the existing 'items' map
+        existingItems.addAll(mapOfItems);
+
+        // Update the 'items' field with merged data
+        await shoppingListRef.set(
+            {'items': existingItems},
+            SetOptions(merge: true), // Merge option to update existing data
+        );
+    } else {
+        // If document does not exist, create it with the new 'items' map
+        await shoppingListRef.set({'items': mapOfItems});
+    }
+}
+
+
 
   Future<List<ShopingListItem>?> readShoppingListItems() async {
+    print('//readShoppingListItems reading items from firestore');
+
     // get family id
     DocumentSnapshot docSnapshot = await usersCollection.doc(userUid).get();
     String familyId = docSnapshot.get('familyId');
@@ -145,19 +167,26 @@ class FireStoreFunctions {
         .get();
 
     if (docSnap.exists && docSnap.data() != null) {
+
       List<ShopingListItem> shoppingListItems = [];
       Map<String, dynamic> shoppingListData =
           docSnap.data() as Map<String, dynamic>;
       Map<String, dynamic> itemsMap =
           shoppingListData['items'] as Map<String, dynamic>;
-
-      itemsMap.forEach((itemName, data) {
-        shoppingListItems
-            .add(ShopingListItem(name: itemName, quantity: data['quantity']));
-      });
-
+      if (itemsMap.isNotEmpty) {
+        itemsMap.forEach((itemName, data) {
+          shoppingListItems
+              .add(ShopingListItem(name: itemName, quantity: data['quantity']));
+        });
+      } else {
+        return null;
+      }
       return shoppingListItems;
     }
     return null;
+  }
+
+  deleteShoppingListItems() async{
+
   }
 }
